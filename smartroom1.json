@@ -1,0 +1,813 @@
+[
+  {
+    "id": "sr_flow",
+    "type": "tab",
+    "label": "Smart Room MQTT Dashboard",
+    "disabled": false,
+    "info": "Smart Room IoT Automation System"
+  },
+  {
+    "id": "sr_mqtt",
+    "type": "mqtt-broker",
+    "name": "HiveMQ Public",
+    "broker": "broker.hivemq.com",
+    "port": "1883",
+    "clientid": "",
+    "autoConnect": true,
+    "usetls": false,
+    "protocolVersion": "4",
+    "keepalive": "60",
+    "cleansession": true,
+    "autoUnsubscribe": true,
+    "birthTopic": "",
+    "birthQos": "0",
+    "birthRetain": "false",
+    "birthPayload": "",
+    "birthMsg": {},
+    "closeTopic": "",
+    "closeQos": "0",
+    "closeRetain": "false",
+    "closePayload": "",
+    "closeMsg": {},
+    "willTopic": "",
+    "willQos": "0",
+    "willRetain": "false",
+    "willPayload": "",
+    "willMsg": {},
+    "userProps": "",
+    "sessionExpiry": ""
+  },
+  {
+    "id": "sr_base",
+    "type": "ui-base",
+    "name": "Smart Room Dashboard",
+    "path": "/dashboard",
+    "appIcon": "",
+    "includeClientData": true,
+    "acceptsClientConfig": [
+      "ui-notification",
+      "ui-control"
+    ],
+    "showPathInSidebar": false,
+    "headerContent": "page",
+    "navigationStyle": "default",
+    "titleBarStyle": "default",
+    "showReconnectNotification": true,
+    "notificationDisplayTime": "1",
+    "showDisconnectNotification": true,
+    "allowInstall": false
+  },
+  {
+    "id": "sr_theme",
+    "type": "ui-theme",
+    "name": "Smart Room Theme",
+    "colors": {
+      "surface": "#ffffff",
+      "primary": "#0094CE",
+      "bgPage": "#f4f5f7",
+      "groupBg": "#ffffff",
+      "groupOutline": "#d9dee7"
+    },
+    "sizes": {
+      "density": "default",
+      "pagePadding": "12px",
+      "groupGap": "12px",
+      "groupBorderRadius": "6px",
+      "widgetGap": "12px"
+    }
+  },
+  {
+    "id": "sr_page",
+    "type": "ui-page",
+    "name": "Smart Room",
+    "ui": "sr_base",
+    "path": "/smartroom",
+    "icon": "home",
+    "layout": "grid",
+    "theme": "sr_theme",
+    "breakpoints": [
+      {
+        "name": "Default",
+        "px": 0,
+        "cols": 3
+      },
+      {
+        "name": "Tablet",
+        "px": 576,
+        "cols": 6
+      },
+      {
+        "name": "Small Desktop",
+        "px": 768,
+        "cols": 9
+      },
+      {
+        "name": "Desktop",
+        "px": 1024,
+        "cols": 12
+      }
+    ],
+    "order": 1,
+    "className": "",
+    "visible": true,
+    "disabled": false
+  },
+  {
+    "id": "sr_sensor_group",
+    "type": "ui-group",
+    "name": "Live Sensor Monitoring",
+    "page": "sr_page",
+    "width": 12,
+    "height": 1,
+    "order": 1,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "sr_chart_group",
+    "type": "ui-group",
+    "name": "Historical Sensor Data",
+    "page": "sr_page",
+    "width": 12,
+    "height": 1,
+    "order": 2,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "sr_status_group",
+    "type": "ui-group",
+    "name": "Automation Status",
+    "page": "sr_page",
+    "width": 12,
+    "height": 1,
+    "order": 3,
+    "showTitle": true,
+    "className": "",
+    "visible": true,
+    "disabled": false,
+    "groupType": "default"
+  },
+  {
+    "id": "sr_temp_in",
+    "type": "mqtt in",
+    "z": "sr_flow",
+    "name": "Temperature",
+    "topic": "smartroom/temperature",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "sr_mqtt",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 130,
+    "y": 80,
+    "wires": [
+      [
+        "sr_temp_function"
+      ]
+    ]
+  },
+  {
+    "id": "sr_temp_function",
+    "type": "function",
+    "z": "sr_flow",
+    "name": "Process Temperature",
+    "func": "const value = Number(msg.payload);\n\nif (isNaN(value)) {\n    return null;\n}\n\nmsg.payload = Number(value.toFixed(1));\nmsg.topic = \"Temperature\";\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 340,
+    "y": 80,
+    "wires": [
+      [
+        "sr_temp_gauge",
+        "sr_temp_text",
+        "sr_temp_humidity_chart"
+      ]
+    ]
+  },
+  {
+    "id": "sr_humidity_in",
+    "type": "mqtt in",
+    "z": "sr_flow",
+    "name": "Humidity",
+    "topic": "smartroom/humidity",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "sr_mqtt",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 130,
+    "y": 140,
+    "wires": [
+      [
+        "sr_humidity_function"
+      ]
+    ]
+  },
+  {
+    "id": "sr_humidity_function",
+    "type": "function",
+    "z": "sr_flow",
+    "name": "Process Humidity",
+    "func": "const value = Number(msg.payload);\n\nif (isNaN(value)) {\n    return null;\n}\n\nmsg.payload = Number(value.toFixed(1));\nmsg.topic = \"Humidity\";\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 340,
+    "y": 140,
+    "wires": [
+      [
+        "sr_humidity_gauge",
+        "sr_humidity_text",
+        "sr_temp_humidity_chart"
+      ]
+    ]
+  },
+  {
+    "id": "sr_light_in",
+    "type": "mqtt in",
+    "z": "sr_flow",
+    "name": "LDR Light Level",
+    "topic": "smartroom/light",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "sr_mqtt",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 130,
+    "y": 200,
+    "wires": [
+      [
+        "sr_light_function"
+      ]
+    ]
+  },
+  {
+    "id": "sr_light_function",
+    "type": "function",
+    "z": "sr_flow",
+    "name": "Process Light Level",
+    "func": "const value = Number(msg.payload);\n\nif (isNaN(value)) {\n    return null;\n}\n\nmsg.payload = Math.round(value);\nmsg.topic = \"Light Level\";\n\nreturn msg;",
+    "outputs": 1,
+    "timeout": 0,
+    "noerr": 0,
+    "initialize": "",
+    "finalize": "",
+    "libs": [],
+    "x": 350,
+    "y": 200,
+    "wires": [
+      [
+        "sr_light_gauge",
+        "sr_light_text",
+        "sr_light_chart"
+      ]
+    ]
+  },
+  {
+    "id": "sr_temp_gauge",
+    "type": "ui-gauge",
+    "z": "sr_flow",
+    "name": "Temperature Gauge",
+    "group": "sr_sensor_group",
+    "order": 1,
+    "value": "payload",
+    "valueType": "msg",
+    "width": 4,
+    "height": 4,
+    "gtype": "gauge-half",
+    "gstyle": "needle",
+    "title": "Temperature",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "deg C",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": 0,
+        "color": "#5CD65C",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": 28,
+        "color": "#FFC800",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": 35,
+        "color": "#EA5353",
+        "text": "",
+        "textType": "label"
+      }
+    ],
+    "min": 0,
+    "max": 50,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 600,
+    "y": 60,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "sr_humidity_gauge",
+    "type": "ui-gauge",
+    "z": "sr_flow",
+    "name": "Humidity Gauge",
+    "group": "sr_sensor_group",
+    "order": 2,
+    "value": "payload",
+    "valueType": "msg",
+    "width": 4,
+    "height": 4,
+    "gtype": "gauge-half",
+    "gstyle": "needle",
+    "title": "Humidity",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "%",
+    "icon": "",
+    "prefix": "",
+    "suffix": "%",
+    "segments": [
+      {
+        "from": 0,
+        "color": "#FFC800",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": 40,
+        "color": "#5CD65C",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": 70,
+        "color": "#0095FF",
+        "text": "",
+        "textType": "label"
+      }
+    ],
+    "min": 0,
+    "max": 100,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 600,
+    "y": 160,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "sr_light_gauge",
+    "type": "ui-gauge",
+    "z": "sr_flow",
+    "name": "Light Level Gauge",
+    "group": "sr_sensor_group",
+    "order": 3,
+    "value": "payload",
+    "valueType": "msg",
+    "width": 4,
+    "height": 4,
+    "gtype": "gauge-half",
+    "gstyle": "needle",
+    "title": "LDR Light Level",
+    "alwaysShowTitle": false,
+    "floatingTitlePosition": "top-left",
+    "units": "ADC",
+    "icon": "",
+    "prefix": "",
+    "suffix": "",
+    "segments": [
+      {
+        "from": 0,
+        "color": "#FFC800",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": 1000,
+        "color": "#5CD65C",
+        "text": "",
+        "textType": "label"
+      },
+      {
+        "from": 3000,
+        "color": "#0095FF",
+        "text": "",
+        "textType": "label"
+      }
+    ],
+    "min": 0,
+    "max": 4095,
+    "sizeThickness": 16,
+    "sizeGap": 4,
+    "sizeKeyThickness": 8,
+    "styleRounded": true,
+    "styleGlow": false,
+    "className": "",
+    "x": 600,
+    "y": 260,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "sr_temp_text",
+    "type": "ui-text",
+    "z": "sr_flow",
+    "group": "sr_sensor_group",
+    "order": 4,
+    "width": 4,
+    "height": 1,
+    "name": "Temperature Reading",
+    "label": "Temperature",
+    "format": "{{msg.payload}} deg C",
+    "layout": "row-spread",
+    "style": false,
+    "font": "Helvetica",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 800,
+    "y": 80,
+    "wires": []
+  },
+  {
+    "id": "sr_humidity_text",
+    "type": "ui-text",
+    "z": "sr_flow",
+    "group": "sr_sensor_group",
+    "order": 5,
+    "width": 4,
+    "height": 1,
+    "name": "Humidity Reading",
+    "label": "Humidity",
+    "format": "{{msg.payload}} %",
+    "layout": "row-spread",
+    "style": false,
+    "font": "Helvetica",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 800,
+    "y": 140,
+    "wires": []
+  },
+  {
+    "id": "sr_light_text",
+    "type": "ui-text",
+    "z": "sr_flow",
+    "group": "sr_sensor_group",
+    "order": 6,
+    "width": 4,
+    "height": 1,
+    "name": "Light Reading",
+    "label": "LDR Reading",
+    "format": "{{msg.payload}} ADC",
+    "layout": "row-spread",
+    "style": false,
+    "font": "Helvetica",
+    "fontSize": 16,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 800,
+    "y": 200,
+    "wires": []
+  },
+  {
+    "id": "sr_temp_humidity_chart",
+    "type": "ui-chart",
+    "z": "sr_flow",
+    "group": "sr_chart_group",
+    "name": "Temperature and Humidity",
+    "label": "Temperature and Humidity",
+    "order": 1,
+    "chartType": "line",
+    "category": "topic",
+    "categoryType": "msg",
+    "xAxisLabel": "Time",
+    "xAxisProperty": "",
+    "xAxisPropertyType": "timestamp",
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "xmin": "",
+    "xmax": "",
+    "yAxisLabel": "Value",
+    "yAxisProperty": "payload",
+    "yAxisPropertyType": "msg",
+    "ymin": "",
+    "ymax": "",
+    "bins": 10,
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "circle",
+    "pointRadius": 3,
+    "showLegend": true,
+    "removeOlder": 30,
+    "removeOlderUnit": "60",
+    "removeOlderPoints": "",
+    "colors": [
+      "#e2231a",
+      "#0095FF",
+      "#FF7F0E",
+      "#2CA02C"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": 12,
+    "height": 6,
+    "className": "",
+    "interpolation": "linear",
+    "x": 700,
+    "y": 350,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "sr_light_chart",
+    "type": "ui-chart",
+    "z": "sr_flow",
+    "group": "sr_chart_group",
+    "name": "LDR Light History",
+    "label": "LDR Light Level",
+    "order": 2,
+    "chartType": "line",
+    "category": "topic",
+    "categoryType": "msg",
+    "xAxisLabel": "Time",
+    "xAxisProperty": "",
+    "xAxisPropertyType": "timestamp",
+    "xAxisType": "time",
+    "xAxisFormat": "",
+    "xAxisFormatType": "auto",
+    "xmin": "",
+    "xmax": "",
+    "yAxisLabel": "ADC Reading",
+    "yAxisProperty": "payload",
+    "yAxisPropertyType": "msg",
+    "ymin": "0",
+    "ymax": "4095",
+    "bins": 10,
+    "action": "append",
+    "stackSeries": false,
+    "pointShape": "circle",
+    "pointRadius": 3,
+    "showLegend": false,
+    "removeOlder": 30,
+    "removeOlderUnit": "60",
+    "removeOlderPoints": "",
+    "colors": [
+      "#0094CE",
+      "#5CD65C",
+      "#FFC800"
+    ],
+    "textColor": [
+      "#666666"
+    ],
+    "textColorDefault": true,
+    "gridColor": [
+      "#e5e5e5"
+    ],
+    "gridColorDefault": true,
+    "width": 12,
+    "height": 6,
+    "className": "",
+    "interpolation": "linear",
+    "x": 700,
+    "y": 450,
+    "wires": [
+      []
+    ]
+  },
+  {
+    "id": "sr_motion_in",
+    "type": "mqtt in",
+    "z": "sr_flow",
+    "name": "Motion",
+    "topic": "smartroom/motion",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "sr_mqtt",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 130,
+    "y": 300,
+    "wires": [
+      [
+        "sr_motion_text"
+      ]
+    ]
+  },
+  {
+    "id": "sr_fan_in",
+    "type": "mqtt in",
+    "z": "sr_flow",
+    "name": "Fan",
+    "topic": "smartroom/fan",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "sr_mqtt",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 130,
+    "y": 350,
+    "wires": [
+      [
+        "sr_fan_text"
+      ]
+    ]
+  },
+  {
+    "id": "sr_led_in",
+    "type": "mqtt in",
+    "z": "sr_flow",
+    "name": "Room LED",
+    "topic": "smartroom/led",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "sr_mqtt",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 130,
+    "y": 400,
+    "wires": [
+      [
+        "sr_led_text"
+      ]
+    ]
+  },
+  {
+    "id": "sr_buzzer_in",
+    "type": "mqtt in",
+    "z": "sr_flow",
+    "name": "Buzzer",
+    "topic": "smartroom/buzzer",
+    "qos": "0",
+    "datatype": "auto-detect",
+    "broker": "sr_mqtt",
+    "nl": false,
+    "rap": true,
+    "rh": 0,
+    "inputs": 0,
+    "x": 130,
+    "y": 450,
+    "wires": [
+      [
+        "sr_buzzer_text"
+      ]
+    ]
+  },
+  {
+    "id": "sr_motion_text",
+    "type": "ui-text",
+    "z": "sr_flow",
+    "group": "sr_status_group",
+    "order": 1,
+    "width": 6,
+    "height": 1,
+    "name": "Motion Status",
+    "label": "Motion",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "Helvetica",
+    "fontSize": 18,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 400,
+    "y": 300,
+    "wires": []
+  },
+  {
+    "id": "sr_fan_text",
+    "type": "ui-text",
+    "z": "sr_flow",
+    "group": "sr_status_group",
+    "order": 2,
+    "width": 6,
+    "height": 1,
+    "name": "Fan Status",
+    "label": "Fan",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "Helvetica",
+    "fontSize": 18,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 400,
+    "y": 350,
+    "wires": []
+  },
+  {
+    "id": "sr_led_text",
+    "type": "ui-text",
+    "z": "sr_flow",
+    "group": "sr_status_group",
+    "order": 3,
+    "width": 6,
+    "height": 1,
+    "name": "LED Status",
+    "label": "Room LED",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "Helvetica",
+    "fontSize": 18,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 400,
+    "y": 400,
+    "wires": []
+  },
+  {
+    "id": "sr_buzzer_text",
+    "type": "ui-text",
+    "z": "sr_flow",
+    "group": "sr_status_group",
+    "order": 4,
+    "width": 6,
+    "height": 1,
+    "name": "Buzzer Status",
+    "label": "Buzzer",
+    "format": "{{msg.payload}}",
+    "layout": "row-spread",
+    "style": false,
+    "font": "Helvetica",
+    "fontSize": 18,
+    "color": "#717171",
+    "wrapText": false,
+    "className": "",
+    "value": "payload",
+    "valueType": "msg",
+    "x": 400,
+    "y": 450,
+    "wires": []
+  }
+]
